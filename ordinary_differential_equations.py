@@ -33,7 +33,7 @@ class ExponentialFunction(OrdinaryDifferentialEquation):
         return self._lambda
 
     def exact_solution(self, t ):
-        return self._initial_value * np.exp(lam*t)
+        return self._initial_value * np.exp(self._lambda*t)
 
 class SimpleODE(OrdinaryDifferentialEquation):
 
