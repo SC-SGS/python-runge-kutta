@@ -8,7 +8,7 @@ import rungekuttamethods as rk
 import ordinarydifferentialequations as ode
 
 
-def run_convergence_test(ode_solver, y0, t0, dt0, t_end, n_refinements, expected_order):
+def run_convergence_test(ode_solver, t0, dt0, t_end, n_refinements, expected_order):
     """Solve a problem for a given ODE solver and number of time step refinements
 
     :param ode_solver: RungeKuttaSolverExplicit object or any of its children. The object also
@@ -21,7 +21,7 @@ def run_convergence_test(ode_solver, y0, t0, dt0, t_end, n_refinements, expected
     print("         dt,        error, convergence rate, expected conv. rate")
     for i_refinement in range(0, n_refinements):
         dt = dt0 * 2 ** (-i_refinement)
-        y, time_arr = rk.solve_ode(ode_solver, y0, t0, dt, t_end, verbose=False)
+        y, time_arr = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
         error = np.linalg.norm(y[-1] - ode_solver.get_problem().exact_solution(t_end))
         time_step_sizes.append(dt)
         errors.append(error)
@@ -34,6 +34,7 @@ def run_convergence_test(ode_solver, y0, t0, dt0, t_end, n_refinements, expected
 
     print("")
     return errors, time_step_sizes
+
 
 if __name__ == "__main__":
 
@@ -55,18 +56,23 @@ if __name__ == "__main__":
 
         errors, time_step_sizes = run_convergence_test(
             ode_solver=ode_solver,
-            y0=np.array([1.0]),
             t0=t,
             dt0=dt,
             t_end=t_end,
             n_refinements=4,
             expected_order=ode_solver.get_convergence_order(),
         )
-        ax.loglog(time_step_sizes, errors, label=f"{ode_solver._name}", marker=marker, markersize=8)
+        ax.loglog(
+            time_step_sizes,
+            errors,
+            label=f"{ode_solver._name}",
+            marker=marker,
+            markersize=8,
+        )
 
     ax.grid()
-    plt.xlabel('Time step size $dt$')
-    plt.ylabel('Error $|y(t_{end})-y^N|$')
+    plt.xlabel("Time step size $dt$")
+    plt.ylabel("Error $|y(t_{end})-y^N|$")
 
     plt.legend()
     plt.show()

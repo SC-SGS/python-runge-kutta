@@ -1,8 +1,10 @@
 import numpy as np
 import sys
 
+
 class ButcherTableauException(Exception):
     pass
+
 
 class RungeKuttaMethod:
 
@@ -45,26 +47,37 @@ class RungeKuttaMethod:
     def get_name(self):
         return self._name
 
-class ExplicitRungeKuttaMethod(RungeKuttaMethod):
 
+class ExplicitRungeKuttaMethod(RungeKuttaMethod):
     def _check_tableau(self):
-        if (self._tableau_a.shape == (1,)):
-            if ( self._tableau_a != 0.0 ):
-                    raise ButcherTableauException(f"Butcher tableau of \"{self._name}\" has wrong non-zero entries making it an implicit method.\n  A[0][0]={self._tableau_a}")
+        if self._tableau_a.shape == (1,):
+            if self._tableau_a != 0.0:
+                raise ButcherTableauException(
+                    f'Butcher tableau of "{self._name}" has wrong non-zero entries making it an implicit method.\n  A[0][0]={self._tableau_a}'
+                )
         else:
+            if self._tableau_a.shape != (self._n_stages, self._n_stages):
+                raise ButcherTableauException(
+                    f'Butcher tableau of "{self._name}" has wrong shape. \n  Expected shape ({self._n_stages},{self._n_stages}).\n  Actual shape {self._tableau_a.shape}'
+                )
             for i in range(0, self._n_stages):
                 for j in range(i, self._n_stages):
-                    if ( self._tableau_a[i][j] != 0.0 ):
-                        raise ButcherTableauException(f"Butcher tableau of \"{self._name}\" has wrong non-zero entries making it an implicit method.\n  A[{i}][{j}]={self._tableau_a[i][j]}")
+                    if self._tableau_a[i][j] != 0.0:
+                        raise ButcherTableauException(
+                            f'Butcher tableau of "{self._name}" has wrong non-zero entries making it an implicit method.\n  A[{i}][{j}]={self._tableau_a[i][j]}'
+                        )
 
     def step(self, y, t, dt):
         assert self._n_stages != None
 
-        u = np.zeros(self._n_stages)
+        # print(f"{self._n_stages}, {self._problem._system_size}")
+
+        u = np.zeros((self._n_stages, self._problem._system_size, 1))
         for i_stage in range(0, self._n_stages):
+            # print( u[i_stage].shape, y.shape, 1 )
             u[i_stage] = y
             for j in range(0, i_stage):
-                u[i_stage] += (
+                u[i_stage] = u[i_stage] + (
                     dt
                     * self._tableau_a[i_stage, j]
                     * self._problem.evaluate(t + self._tableau_c[j] * dt, u[j])
@@ -72,13 +85,14 @@ class ExplicitRungeKuttaMethod(RungeKuttaMethod):
 
         y_new = np.copy(y)
         for i_stage in range(0, self._n_stages):
-            y_new += (
+            y_new = y_new + (
                 dt
                 * self._tableau_b[i_stage]
                 * self._problem.evaluate(t + self._tableau_c[i_stage] * dt, u[i_stage])
             )
 
         return y_new, t + dt
+
 
 class ExplicitEuler(ExplicitRungeKuttaMethod):
 
@@ -153,19 +167,18 @@ class ClassicalRungeKutta(ExplicitRungeKuttaMethod):
         ExplicitRungeKuttaMethod.__init__(self, problem)
 
 
-def solve_ode( ode_integrator, y, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
-    """
-    """
-    #ode_integrator.report()
+def solve_ode(ode_integrator, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
+    """ """
+    # ode_integrator.report()
     time_arr, y_arr = [], []
-    y_arr.append(y)
+    y_arr.append(ode_integrator.get_problem().get_initial_value())
     time_arr.append(t)
-    y_local = np.copy(y)
+    y_local = np.copy(ode_integrator.get_problem().get_initial_value())
     while t < t_end - TIME_EPS:
         if verbose:
             print(f"t={t}: Solve for {t+dt}")
-        y_local, t = ode_integrator.step( y_local, t, dt )
+        y_local, t = ode_integrator.step(y_local, t, dt)
         y_arr.append(y_local)
         time_arr.append(t)
 
-    return y_arr, time_arr
+    return np.array(y_arr), time_arr
