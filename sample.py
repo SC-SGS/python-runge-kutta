@@ -4,12 +4,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-import runge_kutta as rk
-import ordinary_differential_equations as ode
-
-
-
-
+import rungekuttamethods as rk
+import ordinarydifferentialequations as ode
 
 if __name__ == "__main__":
 

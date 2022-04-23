@@ -1,4 +1,8 @@
 import numpy as np
+import sys
+
+class ButcherTableauException(Exception):
+    pass
 
 class RungeKuttaMethod:
 
@@ -12,8 +16,16 @@ class RungeKuttaMethod:
 
     _convergence_order = None
 
+    def _check_tableau(self):
+        pass
+
     def __init__(self, problem):
         self._problem = problem
+        try:
+            self._check_tableau()
+        except ButcherTableauException as err:
+            print(err)
+            sys.exit(1)
 
     def step(self, y, t, dt):
         return None, None
@@ -34,6 +46,16 @@ class RungeKuttaMethod:
         return self._name
 
 class ExplicitRungeKuttaMethod(RungeKuttaMethod):
+
+    def _check_tableau(self):
+        if (self._tableau_a.shape == (1,)):
+            if ( self._tableau_a != 0.0 ):
+                    raise ButcherTableauException(f"Butcher tableau of \"{self._name}\" has wrong non-zero entries making it an implicit method.\n  A[0][0]={self._tableau_a}")
+        else:
+            for i in range(0, self._n_stages):
+                for j in range(i, self._n_stages):
+                    if ( self._tableau_a[i][j] != 0.0 ):
+                        raise ButcherTableauException(f"Butcher tableau of \"{self._name}\" has wrong non-zero entries making it an implicit method.\n  A[{i}][{j}]={self._tableau_a[i][j]}")
 
     def step(self, y, t, dt):
         assert self._n_stages != None
