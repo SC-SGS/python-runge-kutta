@@ -11,7 +11,7 @@ import ordinary_differential_equations as ode
 def run_convergence_test(ode_solver, y0, t0, dt0, t_end, n_refinements, expected_order):
     """Solve a problem for a given ODE solver and number of time step refinements
 
-    :param ode_solver:
+    :param ode_solver: RungeKuttaSolverExplicit object or any of its children. The object also
     :type ode_solver: RungeKuttaSolverExplicit
     """
     errors = []

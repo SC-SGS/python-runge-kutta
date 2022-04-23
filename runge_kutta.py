@@ -1,7 +1,6 @@
 import numpy as np
 
-
-class RungeKuttaSolverExplicit:
+class RungeKuttaMethod:
 
     _name = None
 
@@ -17,55 +16,7 @@ class RungeKuttaSolverExplicit:
         self._problem = problem
 
     def step(self, y, t, dt):
-        assert self._n_stages != None
-
-        u = np.zeros(self._n_stages)
-        for i_stage in range(0, self._n_stages):
-            u[i_stage] = y
-            for j in range(0, i_stage):
-                u[i_stage] += (
-                    dt
-                    * self._tableau_a[i_stage, j]
-                    * self._problem.evaluate(t + self._tableau_c[j] * dt, u[j])
-                )
-
-        y_new = y
-        for i_stage in range(0, self._n_stages):
-            y_new += (
-                dt
-                * self._tableau_b[i_stage]
-                * self._problem.evaluate(t + self._tableau_c[i_stage] * dt, u[i_stage])
-            )
-
-        return y_new, t + dt
-
-    #    def step(self, y, t, dt):
-    #        assert self._n_stages != None
-    #        #print(f"Solving at t={t} and dt={dt}")
-    #
-    #        k = np.zeros(self._n_stages)
-    #        for i_stage in range(0, self._n_stages):
-    #            y_temp = y
-    #            for j in range(0, i_stage):
-    #                print(f"i={i_stage}, j={j}, a_ij={self._tableau_a[i_stage, j]}")
-    #                print(f"k {k}")
-    #                print(
-    #                    "dt * self._tableau_a[i_stage, j] * k[j]=",
-    #                    dt * self._tableau_a[i_stage, j] * k[j],
-    #                )
-    #                print(f"y_temp={y_temp}")
-    #                y_temp += dt * self._tableau_a[i_stage, j] * k[j]
-    #            print(f"y_temp={y_temp}")
-    #            k[i_stage] = self._problem.evaluate(
-    #                t + self._tableau_c[i_stage] * dt, y_temp
-    #            )
-    #
-    #        y_update = 0.0
-    #        for i_stage in range(0, self._n_stages):
-    #            y_update += self._tableau_b[i_stage] * k[i_stage]
-    #        y_new = y + dt * y_update
-    #
-    #        return y_new, t + dt
+        return None, None
 
     def report(self):
         print(
@@ -82,8 +33,32 @@ class RungeKuttaSolverExplicit:
     def get_name(self):
         return self._name
 
+class ExplicitRungeKuttaMethod(RungeKuttaMethod):
 
-class ExplicitEuler(RungeKuttaSolverExplicit):
+    def step(self, y, t, dt):
+        assert self._n_stages != None
+
+        u = np.zeros(self._n_stages)
+        for i_stage in range(0, self._n_stages):
+            u[i_stage] = y
+            for j in range(0, i_stage):
+                u[i_stage] += (
+                    dt
+                    * self._tableau_a[i_stage, j]
+                    * self._problem.evaluate(t + self._tableau_c[j] * dt, u[j])
+                )
+
+        y_new = np.copy(y)
+        for i_stage in range(0, self._n_stages):
+            y_new += (
+                dt
+                * self._tableau_b[i_stage]
+                * self._problem.evaluate(t + self._tableau_c[i_stage] * dt, u[i_stage])
+            )
+
+        return y_new, t + dt
+
+class ExplicitEuler(ExplicitRungeKuttaMethod):
 
     _name = "Explicit Euler method"
 
@@ -95,10 +70,10 @@ class ExplicitEuler(RungeKuttaSolverExplicit):
     _convergence_order = 1.0
 
     def __init__(self, problem):
-        RungeKuttaSolverExplicit.__init__(self, problem)
+        ExplicitRungeKuttaMethod.__init__(self, problem)
 
 
-class ExplicitImprovedEuler(RungeKuttaSolverExplicit):
+class ExplicitImprovedEuler(ExplicitRungeKuttaMethod):
 
     _name = "Improved explicit Euler method"
 
@@ -110,10 +85,10 @@ class ExplicitImprovedEuler(RungeKuttaSolverExplicit):
     _convergence_order = 2.0
 
     def __init__(self, problem):
-        RungeKuttaSolverExplicit.__init__(self, problem)
+        ExplicitRungeKuttaMethod.__init__(self, problem)
 
 
-class Heun(RungeKuttaSolverExplicit):
+class Heun(ExplicitRungeKuttaMethod):
 
     _name = "Heun's Runge-Kutta method"
 
@@ -131,10 +106,10 @@ class Heun(RungeKuttaSolverExplicit):
     _convergence_order = 3.0
 
     def __init__(self, problem):
-        RungeKuttaSolverExplicit.__init__(self, problem)
+        ExplicitRungeKuttaMethod.__init__(self, problem)
 
 
-class ClassicalRungeKutta(RungeKuttaSolverExplicit):
+class ClassicalRungeKutta(ExplicitRungeKuttaMethod):
 
     _name = "Classical Runge-Kutta method (RK4)"
 
@@ -153,7 +128,7 @@ class ClassicalRungeKutta(RungeKuttaSolverExplicit):
     _convergence_order = 4.0
 
     def __init__(self, problem):
-        RungeKuttaSolverExplicit.__init__(self, problem)
+        ExplicitRungeKuttaMethod.__init__(self, problem)
 
 
 def solve_ode( ode_integrator, y, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
@@ -161,7 +136,7 @@ def solve_ode( ode_integrator, y, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
     """
     #ode_integrator.report()
     time_arr, y_arr = [], []
-    y_arr.append(y[0])
+    y_arr.append(y)
     time_arr.append(t)
     y_local = np.copy(y)
     while t < t_end - TIME_EPS:
