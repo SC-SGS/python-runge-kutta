@@ -308,8 +308,7 @@ class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 
 
 def solve_ode(ode_integrator, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
-    """Solve an ordinary differential equation (ODE)
-    """
+    """Solve an ordinary differential equation (ODE)"""
     time_arr, y_arr = [], []
     y_arr.append(ode.get_initial_value())
     time_arr.append(t)
@@ -322,7 +321,7 @@ def solve_ode(ode_integrator, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
         y_arr.append(y_local)
         time_arr.append(t)
         i_steps += 1
-        if ( t + dt > t_end ):
+        if t + dt > t_end:
             dt = t_end - t
 
     return np.array(y_arr), time_arr, i_steps

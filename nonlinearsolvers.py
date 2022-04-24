@@ -4,6 +4,7 @@ import numpy as np
 
 TOL_EPS = 1e-15
 
+
 class NonlinearSolverException(Exception):
     pass
 
@@ -52,8 +53,7 @@ def damped_newton_raphson(
 
         while (
             x_guess_residual_abs > damping_coefficient * residual_abs
-            and x_guess_residual_abs > tol_abs
-            and x_guess_residual_rel > tol_rel
+            and x_guess_residual_rel > damping_coefficient * residual_rel
         ):
             damping_factor *= 0.5
             if damping_factor <= damping_factor_min:
@@ -69,7 +69,9 @@ def damped_newton_raphson(
             if verbose:
                 print(f"x_guess: {x_guess}, s: {s}")
                 print(f"damping_factor: {damping_factor:1.6e}")
-                print( f"x_guess_residual_abs: {x_guess_residual_abs}, x_guess_residual_rel: {x_guess_residual_rel}")
+                print(
+                    f"x_guess_residual_abs: {x_guess_residual_abs}, x_guess_residual_rel: {x_guess_residual_rel}"
+                )
 
             # print()
             # sys.exit(1)
