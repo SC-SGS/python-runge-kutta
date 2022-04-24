@@ -50,29 +50,29 @@ def damped_newton_raphson(
         x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
         x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
 
-#        while (
-#            x_guess_residual_abs > damping_coefficient * residual_abs
-#            and x_guess_residual_abs > tol_abs
-#            and x_guess_residual_rel > tol_rel
-#        ):
-#            damping_factor *= 0.5
-#            if damping_factor <= damping_factor_min:
-#                raise NonlinearSolverException(
-#                    f"Error: Damping factor below threshold ( {damping_factor:1.6e} <= {damping_factor_min:1.6e} )"
-#                )
-#
-#            x_guess = x + damping_factor * s
-#
-#            damping_coefficient = 1.0 - damping_factor / 4.0
-#            x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
-#            x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
-#            if verbose:
-#                print(f"x_guess: {x_guess}, s: {s}")
-#                print(f"damping_factor: {damping_factor:1.6e}")
-#                print( f"x_guess_residual_abs: {x_guess_residual_abs}, x_guess_residual_rel: {x_guess_residual_rel}")
-#
-#            # print()
-#            # sys.exit(1)
+        while (
+            x_guess_residual_abs > damping_coefficient * residual_abs
+            and x_guess_residual_abs > tol_abs
+            and x_guess_residual_rel > tol_rel
+        ):
+            damping_factor *= 0.5
+            if damping_factor <= damping_factor_min:
+                raise NonlinearSolverException(
+                    f"Error: Damping factor below threshold ( {damping_factor:1.6e} <= {damping_factor_min:1.6e} )"
+                )
+
+            x_guess = x + damping_factor * s
+
+            damping_coefficient = 1.0 - damping_factor / 4.0
+            x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
+            x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
+            if verbose:
+                print(f"x_guess: {x_guess}, s: {s}")
+                print(f"damping_factor: {damping_factor:1.6e}")
+                print( f"x_guess_residual_abs: {x_guess_residual_abs}, x_guess_residual_rel: {x_guess_residual_rel}")
+
+            # print()
+            # sys.exit(1)
 
         x = x_guess
         # print(f"s: {s}, x: {x}")
