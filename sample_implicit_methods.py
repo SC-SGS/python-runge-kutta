@@ -29,8 +29,7 @@ if __name__ == "__main__":
         # print( y, time_arr )
         ax.plot(time_arr, y, label=f"{ode_solver.get_name()}", marker=marker)
         print(
-            f"Error for {ode_solver.get_name()}",
-            np.linalg.norm(y[-1] - ode_solver.get_problem().exact_solution(t_end)),
+            f"Error for {ode_solver.get_name()}: {np.linalg.norm(y[-1] - ode_solver.get_problem().exact_solution(t_end)):1.6e}"
         )
 
     x = np.linspace(t0, t_end)
