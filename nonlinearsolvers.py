@@ -9,9 +9,9 @@ class NonlinearSolverException(Exception):
 
 
 def damped_newton_raphson(
-    f, df, x0, max_iter=40, tol_rel=1e-12, tol_abs=1e-14, verbose=False
+    f, df, x0, max_iter=20, tol_rel=1e-10, tol_abs=1e-10, verbose=False
 ):
-    x = x0.copy()
+    x = np.copy(x0)
     # print(x, x0)
 
     residual_abs = np.linalg.norm(f(x), np.inf) + TOL_EPS
@@ -37,6 +37,10 @@ def damped_newton_raphson(
         jacobian = df(x)
         rhs = -1.0 * f(x)
 
+        if verbose:
+            print(f"Jacobian: {jacobian}")
+            print(f"rhs: {rhs}")
+
         s = np.linalg.solve(jacobian, rhs)
 
         damping_factor = 1.0
@@ -46,27 +50,29 @@ def damped_newton_raphson(
         x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
         x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
 
-        while (
-            x_guess_residual_abs > damping_coefficient * residual_abs
-            and x_guess_residual_abs > tol_abs
-            and x_guess_residual_rel > tol_rel
-            and damping_factor > damping_factor_min
-        ):
-            damping_factor *= 0.5
-            x_guess = x + damping_factor * s
-
-            damping_coefficient = 1.0 - damping_factor / 4.0
-            x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
-            x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
-            if verbose:
-                print(f"damping_factor: {damping_factor}")
-
-        if damping_factor <= damping_factor_min:
-            raise NonlinearSolverException(
-                f"Error: Damping factor below threshold ( {damping_factor:1.6e} <= {damping_factor_min:1.6e} )"
-            )
-            # print()
-            # sys.exit(1)
+#        while (
+#            x_guess_residual_abs > damping_coefficient * residual_abs
+#            and x_guess_residual_abs > tol_abs
+#            and x_guess_residual_rel > tol_rel
+#        ):
+#            damping_factor *= 0.5
+#            if damping_factor <= damping_factor_min:
+#                raise NonlinearSolverException(
+#                    f"Error: Damping factor below threshold ( {damping_factor:1.6e} <= {damping_factor_min:1.6e} )"
+#                )
+#
+#            x_guess = x + damping_factor * s
+#
+#            damping_coefficient = 1.0 - damping_factor / 4.0
+#            x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
+#            x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
+#            if verbose:
+#                print(f"x_guess: {x_guess}, s: {s}")
+#                print(f"damping_factor: {damping_factor:1.6e}")
+#                print( f"x_guess_residual_abs: {x_guess_residual_abs}, x_guess_residual_rel: {x_guess_residual_rel}")
+#
+#            # print()
+#            # sys.exit(1)
 
         x = x_guess
         # print(f"s: {s}, x: {x}")
@@ -83,7 +89,7 @@ def damped_newton_raphson(
                 f"Error: Newton solver did not converge within {max_iter} iterations"
             )
 
-    return x
+    return x, n_iter
 
 
 if __name__ == "__main__":

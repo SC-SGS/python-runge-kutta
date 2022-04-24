@@ -3,11 +3,11 @@
 import matplotlib.pyplot as plt
 
 import rungekuttamethods as rk
-import ordinarydifferentialequations as ode
+import ordinarydifferentialequations
 
 if __name__ == "__main__":
 
-    ode_problem = ode.VanDerPol()
+    ode = ordinarydifferentialequations.VanDerPol()
 
     t0 = 0
     dt = (
@@ -19,12 +19,12 @@ if __name__ == "__main__":
     plt.title(f"Solution of van der Pol equation")
 
     for ode_solver, marker in [
-        [rk.ExplicitEuler(ode_problem), "o"],
-        [rk.ExplicitImprovedEuler(ode_problem), "v"],
-        [rk.Heun(ode_problem), "^"],
-        [rk.ClassicalRungeKutta(ode_problem), "s"],
+        [rk.ExplicitEuler(), "o"],
+        [rk.ExplicitImprovedEuler(), "v"],
+        [rk.Heun(), "^"],
+        [rk.ClassicalRungeKutta(), "s"],
     ]:
-        y, time_arr, _ = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
+        y, time_arr, _ = rk.solve_ode(ode_solver, ode, t0, dt, t_end, verbose=False)
         # print(y[:, 0], time_arr)
         ax.plot(time_arr, y[:, 0], label=f"{ode_solver.get_name()}")
 
