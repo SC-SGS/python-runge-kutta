@@ -13,12 +13,12 @@ class OrdinaryDifferentialEquation:
 
     def _check_initial_condition(self):
 
-        if self._system_size == 1:
-            if self._initial_value.shape != (self._system_size,):
-                raise OrdinaryDifferentialEquationException(
-                    f'Initial condition of "{self._name}" problem has wrong shape. \n  Expected shape ({self._system_size},).\n  Actual shape {self._initial_value.shape}'
-                )
-            return
+        # if self._system_size == 1:
+        #     if self._initial_value.shape != (self._system_size,):
+        #         raise OrdinaryDifferentialEquationException(
+        #             f'Initial condition of "{self._name}" problem has wrong shape. \n  Expected shape ({self._system_size},).\n  Actual shape {self._initial_value.shape}'
+        #         )
+        #     return
 
         if self._initial_value.shape != (self._system_size, 1):
             raise OrdinaryDifferentialEquationException(
@@ -68,7 +68,7 @@ class SimpleODE(OrdinaryDifferentialEquation):
     _name = "Simple, non-stiff problem y(t)-2*sin(t)"
     _system_size = 1
 
-    def __init__(self, initial_value=np.array([1.0])):
+    def __init__(self, initial_value=np.array([[1.0]])):
         OrdinaryDifferentialEquation.__init__(self, initial_value=initial_value)
 
     def evaluate(self, t, y):
