@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -8,7 +7,9 @@ import rungekuttamethods as rk
 import ordinarydifferentialequations as ode
 
 
-def run_convergence_test(ode_solver, t0, dt0, t_end, n_refinements, expected_order):
+def run_convergence_test(
+    ode_solver, t0, dt0, t_end, n_refinements, expected_order, order_tolerance=1e-4
+):
     """Solve a problem for a given ODE solver and number of time step refinements
 
     :param ode_solver: RungeKuttaSolverExplicit object or any of its children. The object also
@@ -18,10 +19,10 @@ def run_convergence_test(ode_solver, t0, dt0, t_end, n_refinements, expected_ord
     time_step_sizes = []
     print(f"Running convergence tests for:\n{ode_solver.get_name()}")
 
-    print("         dt,        error, convergence rate, expected conv. rate")
+    print("         dt,        error, conv. rate,  expect. conv. rate")
     for i_refinement in range(0, n_refinements):
         dt = dt0 * 2 ** (-i_refinement)
-        y, time_arr = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
+        y, time_arr, _ = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
         error = np.linalg.norm(y[-1] - ode_solver.get_problem().exact_solution(t_end))
         time_step_sizes.append(dt)
         errors.append(error)
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         # [rk.ClassicalRungeKutta(ode_problem), "s"],
     ]:
 
-        errors, time_step_sizes = run_convergence_test(
+        errors, time_step_sizes = rk.run_convergence_test(
             ode_solver=ode_solver,
             t0=t,
             dt0=dt,

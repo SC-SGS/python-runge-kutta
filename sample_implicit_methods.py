@@ -16,19 +16,15 @@ if __name__ == "__main__":
     t_end = 4
 
     fig, ax = plt.subplots()
-    plt.title(f"Errors over time step size")
+    plt.title(f"Solution over time using implicit methods")
 
     for ode_solver, marker in [
-        [rk.ExplicitEuler(ode_problem), "+"],
         [rk.ImplicitEuler(ode_problem), "o"],
         [rk.ImplicitTrapezoidalRule(ode_problem), "v"],
         [rk.DIRK22(ode_problem), "^"],
         [rk.CrouzeixDIRK23(ode_problem), "s"],
-        # [rk.ExplicitImprovedEuler(ode_problem), "v"],
-        # [rk.Heun(ode_problem), "^"],
-        # [rk.ClassicalRungeKutta(ode_problem), "s"],
     ]:
-        y, time_arr = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
+        y, time_arr, _ = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
         y = y.flatten()
         # print( y, time_arr )
         ax.plot(time_arr, y, label=f"{ode_solver.get_name()}", marker=marker)
@@ -43,6 +39,9 @@ if __name__ == "__main__":
     ax.grid()
     plt.xlabel("Time $t$")
     plt.ylabel("Solution $y(t)$")
+
+    ax.set_xlim([t0 - 0.1, t_end + 0.1])
+    ax.set_ylim([-3.5, 2.0])
 
     plt.legend()
     plt.show()

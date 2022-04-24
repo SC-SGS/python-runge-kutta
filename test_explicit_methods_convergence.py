@@ -54,7 +54,7 @@ if __name__ == "__main__":
         [rk.ClassicalRungeKutta(ode_problem), "s"],
     ]:
 
-        errors, time_step_sizes = run_convergence_test(
+        errors, time_step_sizes = rk.run_convergence_test(
             ode_solver=ode_solver,
             t0=t,
             dt0=dt,

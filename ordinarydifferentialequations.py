@@ -12,14 +12,6 @@ class OrdinaryDifferentialEquation:
     _system_size = None
 
     def _check_initial_condition(self):
-
-        # if self._system_size == 1:
-        #     if self._initial_value.shape != (self._system_size,):
-        #         raise OrdinaryDifferentialEquationException(
-        #             f'Initial condition of "{self._name}" problem has wrong shape. \n  Expected shape ({self._system_size},).\n  Actual shape {self._initial_value.shape}'
-        #         )
-        #     return
-
         if self._initial_value.shape != (self._system_size, 1):
             raise OrdinaryDifferentialEquationException(
                 f'Initial condition of "{self._name}" problem has wrong shape. \n  Expected shape ({self._system_size},1).\n  Actual shape {self._initial_value.shape}'

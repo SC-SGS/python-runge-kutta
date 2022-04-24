@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import optimize
 import sys
+import nonlinearsolvers
 
 
 class ButcherTableauException(Exception):
@@ -37,7 +38,7 @@ class RungeKuttaMethod:
             print(err)
             sys.exit(1)
 
-    def step(self, y, t, dt):
+    def step(self, y, t, dt, verbose=False):
         return None, None
 
     def report(self):
@@ -72,7 +73,7 @@ class ExplicitRungeKuttaMethod(RungeKuttaMethod):
                             f'Butcher tableau of "{self._name}" has wrong non-zero entries making it an implicit method.\n  A[{i}][{j}]={self._tableau_a[i][j]}'
                         )
 
-    def step(self, y, t, dt):
+    def step(self, y, t, dt, verbose=False):
         assert self._n_stages != None
 
         # print(f"{self._n_stages}, {self._problem._system_size}")
@@ -110,7 +111,7 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                             f'Butcher tableau of "{self._name}" has wrong non-zero entries making it a fully-implicit method.\n  A[{i}][{j}]={self._tableau_a[i][j]}'
                         )
 
-    def step(self, y, t, dt):
+    def step(self, y, t, dt, verbose=False):
         assert self._n_stages != None
 
         # print(f"{self._n_stages}, {self._problem._system_size}")
@@ -142,19 +143,22 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                 i_stage, i_stage
             ] * self._problem.evaluate_jacobian(t + self._tableau_c[i_stage] * dt, u_i)
 
-            #            print(f"Identity matrix {identity_matrix}")
-            #            print(f"Constant part  {constant_part}")
-            #            print(f"A:  {self._tableau_a}")
-            #            print(f"A[{i_stage}][{i_stage}]: {self._tableau_a[i_stage, i_stage]}")
-            #            print(f"y:  {y}, y.ndim {y.ndim}")
-            #            print(f"Evaluate f {f(y)}")
-            #            print(f"Evaluate df {df(y)}")
-            #            #print(f"Evaluate f {f(y)}")
-            #            #print(f"Evaluate df {df(y)}")
-            #            print( f"Shapes:\n  y.shape: {y.shape}\n  f.shape: {f(y).shape}\n  df.shape: {df(y).shape} ")
-            #            print( f"Nonlinear solver: {optimize.newton(func=f, x0=np.copy(y), fprime=df)}")
+            # print(f"Constant part  {constant_part}")
+            # print(f"A:  {self._tableau_a}")
+            # print(f"A[{i_stage}][{i_stage}]: {self._tableau_a[i_stage, i_stage]}")
+            # print(f"y:  {y}, y.ndim {y.ndim}")
+            # print(f"Evaluate f {f(y)}")
+            # print(f"Evaluate df {df(y)}")
+            ##print(f"Evaluate f {f(y)}")
+            ##print(f"Evaluate df {df(y)}")
+            # print( f"Shapes:\n  y.shape: {y.shape}\n  f.shape: {f(y).shape}\n  df.shape: {df(y).shape} ")
+            ##asdf = f(y) / df(y)
+            # print( f"Nonlinear solver: {optimize.newton(func=f, x0=np.copy(y), fprime=df)}")
 
-            u[i_stage] = optimize.newton(func=f, x0=np.copy(y), fprime=df)
+            # u[i_stage] = optimize.newton(func=f, x0=np.copy(y), fprime=df)
+            u[i_stage] = nonlinearsolvers.damped_newton_raphson(
+                f, df, y, verbose=verbose
+            )
 
         y_new = np.copy(y)
         for i_stage in range(0, self._n_stages):
@@ -310,16 +314,49 @@ class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 
 def solve_ode(ode_integrator, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
     """ """
-    # ode_integrator.report()
     time_arr, y_arr = [], []
     y_arr.append(ode_integrator.get_problem().get_initial_value())
     time_arr.append(t)
     y_local = np.copy(ode_integrator.get_problem().get_initial_value())
+    i_steps = 0
     while t < t_end - TIME_EPS:
         if verbose:
             print(f"t={t}: Solve for {t+dt}")
-        y_local, t = ode_integrator.step(y_local, t, dt)
+        y_local, t = ode_integrator.step(y_local, t, dt, verbose=verbose)
         y_arr.append(y_local)
         time_arr.append(t)
+        i_steps += 1
 
-    return np.array(y_arr), time_arr
+    return np.array(y_arr), time_arr, i_steps
+
+
+def run_convergence_test(
+    ode_solver, t0, dt0, t_end, n_refinements, expected_order, order_tolerance=1e-4
+):
+    """Solve a problem for a given ODE solver and number of time step refinements
+
+    :param ode_solver: RungeKuttaSolverExplicit object or any of its children. The object also
+    :type ode_solver: RungeKuttaSolverExplicit
+    """
+    errors = []
+    time_step_sizes = []
+    print(f"Running convergence tests for:\n{ode_solver.get_name()}")
+
+    print("# Steps,         dt,        error, conv. rate,  expect. conv. rate")
+    for i_refinement in range(0, n_refinements):
+        dt = dt0 * 2 ** (-i_refinement)
+        y, _, n_steps = solve_ode(ode_solver, t0, dt, t_end, verbose=False)
+        error = np.linalg.norm(y[-1] - ode_solver.get_problem().exact_solution(t_end))
+        time_step_sizes.append(dt)
+        errors.append(error)
+        if i_refinement > 0:
+            print(
+                f"{n_steps:7d}, {dt:2.5e}, {errors[-1]:2.6e}, {np.log(errors[-2]/errors[-1])/np.log( time_step_sizes[-2] / time_step_sizes[-1]):2.4e}, {expected_order:2.4e}"
+            )
+        else:
+            print(
+                f"{n_steps:7d}, {dt:2.5e}, {errors[-1]:2.6e},        ---, {expected_order:2.4e}"
+            )
+
+    print("")
+    return errors, time_step_sizes

@@ -24,7 +24,7 @@ if __name__ == "__main__":
         [rk.Heun(ode_problem), "^"],
         [rk.ClassicalRungeKutta(ode_problem), "s"],
     ]:
-        y, time_arr = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
+        y, time_arr, _ = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
         # print(y[:, 0], time_arr)
         ax.plot(time_arr, y[:, 0], label=f"{ode_solver.get_name()}")
 
