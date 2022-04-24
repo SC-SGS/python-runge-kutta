@@ -126,8 +126,8 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                     * self._problem.evaluate(t + self._tableau_c[j] * dt, u[j])
                 )
 
-            #print( f"Construct identiy matrix with shape {y.shape}:" )
-            #identity_matrix = np.eye(y.ndim)
+            # print( f"Construct identiy matrix with shape {y.shape}:" )
+            # identity_matrix = np.eye(y.ndim)
 
             # Solve (nonlinear) system of equations
             f = (
@@ -138,26 +138,21 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                 * self._problem.evaluate(t + self._tableau_c[i_stage] * dt, u_i)
             )
 
-            df = (
-                lambda u_i: np.eye(u_i.shape[0], u_i.shape[1])
-                - dt
-                * self._tableau_a[i_stage, i_stage]
-                * self._problem.evaluate_jacobian(
-                    t + self._tableau_c[i_stage] * dt, u_i
-                )
-            )
+            df = lambda u_i: np.eye(u_i.shape[0], u_i.shape[1]) - dt * self._tableau_a[
+                i_stage, i_stage
+            ] * self._problem.evaluate_jacobian(t + self._tableau_c[i_stage] * dt, u_i)
 
-#            print(f"Identity matrix {identity_matrix}")
-#            print(f"Constant part  {constant_part}")
-#            print(f"A:  {self._tableau_a}")
-#            print(f"A[{i_stage}][{i_stage}]: {self._tableau_a[i_stage, i_stage]}")
-#            print(f"y:  {y}, y.ndim {y.ndim}")
-#            print(f"Evaluate f {f(y)}")
-#            print(f"Evaluate df {df(y)}")
-#            #print(f"Evaluate f {f(y)}")
-#            #print(f"Evaluate df {df(y)}")
-#            print( f"Shapes:\n  y.shape: {y.shape}\n  f.shape: {f(y).shape}\n  df.shape: {df(y).shape} ")
-#            print( f"Nonlinear solver: {optimize.newton(func=f, x0=np.copy(y), fprime=df)}")
+            #            print(f"Identity matrix {identity_matrix}")
+            #            print(f"Constant part  {constant_part}")
+            #            print(f"A:  {self._tableau_a}")
+            #            print(f"A[{i_stage}][{i_stage}]: {self._tableau_a[i_stage, i_stage]}")
+            #            print(f"y:  {y}, y.ndim {y.ndim}")
+            #            print(f"Evaluate f {f(y)}")
+            #            print(f"Evaluate df {df(y)}")
+            #            #print(f"Evaluate f {f(y)}")
+            #            #print(f"Evaluate df {df(y)}")
+            #            print( f"Shapes:\n  y.shape: {y.shape}\n  f.shape: {f(y).shape}\n  df.shape: {df(y).shape} ")
+            #            print( f"Nonlinear solver: {optimize.newton(func=f, x0=np.copy(y), fprime=df)}")
 
             u[i_stage] = optimize.newton(func=f, x0=np.copy(y), fprime=df)
 
@@ -185,6 +180,7 @@ class ExplicitEuler(ExplicitRungeKuttaMethod):
 
     def __init__(self, problem):
         ExplicitRungeKuttaMethod.__init__(self, problem)
+
 
 class ExplicitImprovedEuler(ExplicitRungeKuttaMethod):
 
@@ -258,6 +254,7 @@ class ImplicitEuler(DiagonallyImplicitRungeKuttaMethod):
     def __init__(self, problem):
         DiagonallyImplicitRungeKuttaMethod.__init__(self, problem)
 
+
 class ImplicitTrapezoidalRule(DiagonallyImplicitRungeKuttaMethod):
 
     _name = "Implicit trapezoidal method"
@@ -272,14 +269,17 @@ class ImplicitTrapezoidalRule(DiagonallyImplicitRungeKuttaMethod):
     def __init__(self, problem):
         DiagonallyImplicitRungeKuttaMethod.__init__(self, problem)
 
+
 class DIRK22(DiagonallyImplicitRungeKuttaMethod):
 
     _name = "Two-stage second order DIRK method (DIRK22)"
 
-    _coefficient = 1.0 - np.sqrt(2) / 2. # Chosen such that method has maximum stability
+    _coefficient = (
+        1.0 - np.sqrt(2) / 2.0
+    )  # Chosen such that method has maximum stability
 
-    _tableau_a = np.array([[_coefficient, 0.0], [1.-_coefficient, _coefficient]])
-    _tableau_b = np.array([1.-_coefficient, _coefficient])
+    _tableau_a = np.array([[_coefficient, 0.0], [1.0 - _coefficient, _coefficient]])
+    _tableau_b = np.array([1.0 - _coefficient, _coefficient])
     _tableau_c = np.array([_coefficient, 1.0])
 
     _n_stages = 2
@@ -288,14 +288,16 @@ class DIRK22(DiagonallyImplicitRungeKuttaMethod):
     def __init__(self, problem):
         DiagonallyImplicitRungeKuttaMethod.__init__(self, problem)
 
+
 class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 
     _name = "Crouzeix's two-stage third order DIRK method "
 
     _coefficient_diag = 0.5 + np.sqrt(3) / 6
 
-
-    _tableau_a = np.array([[_coefficient_diag, 0.0], [-np.sqrt(3) / 3, _coefficient_diag]])
+    _tableau_a = np.array(
+        [[_coefficient_diag, 0.0], [-np.sqrt(3) / 3, _coefficient_diag]]
+    )
     _tableau_b = np.array([0.5, 0.5])
     _tableau_c = np.array([_coefficient_diag, 0.5 - np.sqrt(3) / 6])
 

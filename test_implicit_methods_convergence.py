@@ -52,7 +52,7 @@ if __name__ == "__main__":
         [rk.ImplicitTrapezoidalRule(ode_problem), "v"],
         [rk.DIRK22(ode_problem), "^"],
         [rk.CrouzeixDIRK23(ode_problem), "s"],
-        #[rk.ClassicalRungeKutta(ode_problem), "s"],
+        # [rk.ClassicalRungeKutta(ode_problem), "s"],
     ]:
 
         errors, time_step_sizes = run_convergence_test(

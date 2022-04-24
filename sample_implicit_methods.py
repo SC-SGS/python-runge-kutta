@@ -24,9 +24,9 @@ if __name__ == "__main__":
         [rk.ImplicitTrapezoidalRule(ode_problem), "v"],
         [rk.DIRK22(ode_problem), "^"],
         [rk.CrouzeixDIRK23(ode_problem), "s"],
-        #[rk.ExplicitImprovedEuler(ode_problem), "v"],
-        #[rk.Heun(ode_problem), "^"],
-        #[rk.ClassicalRungeKutta(ode_problem), "s"],
+        # [rk.ExplicitImprovedEuler(ode_problem), "v"],
+        # [rk.Heun(ode_problem), "^"],
+        # [rk.ClassicalRungeKutta(ode_problem), "s"],
     ]:
         y, time_arr = rk.solve_ode(ode_solver, t0, dt, t_end, verbose=False)
         y = y.flatten()
