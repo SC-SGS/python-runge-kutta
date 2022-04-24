@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 
 import numpy as np
-from scipy import optimize
 
 TOL_EPS = 1e-15
-
 
 class NonlinearSolverException(Exception):
     pass

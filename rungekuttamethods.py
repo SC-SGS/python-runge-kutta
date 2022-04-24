@@ -1,5 +1,4 @@
 import numpy as np
-from scipy import optimize
 import sys
 import nonlinearsolvers
 
@@ -313,7 +312,8 @@ class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 
 
 def solve_ode(ode_integrator, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
-    """ """
+    """Solve an ordinary differential equation (ODE)
+    """
     time_arr, y_arr = [], []
     y_arr.append(ode_integrator.get_problem().get_initial_value())
     time_arr.append(t)
@@ -326,17 +326,38 @@ def solve_ode(ode_integrator, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
         y_arr.append(y_local)
         time_arr.append(t)
         i_steps += 1
+        if ( t + dt > t_end ):
+            dt = t_end - t
 
     return np.array(y_arr), time_arr, i_steps
 
 
 def run_convergence_test(
-    ode_solver, t0, dt0, t_end, n_refinements, expected_order, order_tolerance=1e-4
+    ode_solver, t0, dt0, t_end, n_refinements, expected_order
 ):
     """Solve a problem for a given ODE solver and number of time step refinements
 
-    :param ode_solver: RungeKuttaSolverExplicit object or any of its children. The object also
-    :type ode_solver: RungeKuttaSolverExplicit
+    :param ode_solver: A Runge-Kutta solver object.
+    :type ode_solver: class RungeKuttaMethod or any child class.
+
+    :param t0: Initial time from which the integration starts. Usually t0 is zero
+               and t0 has to match the initial conditions.
+    :type t0: float
+
+    :param dt0: Initial time step size. The time step size is evenly refined (halved).
+    :type dt0: float
+
+    :param t_end: The time for which the integration shall stop.
+    :type t_end: float
+
+    :param n_refinements: The number of times the time step size should be halved.
+    :type n_refinements: integer
+
+    :param expected_order: The time for which the integration shall stop.
+    :type expected_order: integer
+
+    :return: Returns the evaluated ODE and the corresponding time as lists.
+    :rtype: tuple[list, list]
     """
     errors = []
     time_step_sizes = []
