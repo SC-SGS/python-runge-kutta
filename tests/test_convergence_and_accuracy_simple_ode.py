@@ -26,8 +26,6 @@ class TestRungeKuttaMethodsSimpleODE(unittest.TestCase):
             expected_order=runge_kutta_method.get_convergence_order(),
         )
 
-        print(errors)
-
         for error, expected_error in zip(errors, expected_errors):
             self.assertAlmostEqual(error, expected_error)
 
