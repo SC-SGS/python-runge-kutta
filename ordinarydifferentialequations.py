@@ -39,6 +39,9 @@ class OrdinaryDifferentialEquation:
     def get_initial_value(self):
         return self._initial_value
 
+    def get_name(self):
+        return self._name
+
 
 class ExponentialFunction(OrdinaryDifferentialEquation):
 
@@ -98,7 +101,7 @@ class VanDerPol(OrdinaryDifferentialEquation):
     time steps. Adaptive time step control is beneficial for this test case.
     """
 
-    _name = "Van der Pol equation"
+    _name = "van der Pol equation"
     _system_size = 2
 
     def __init__(self, initial_value=np.array([[2.0], [0.0]])):
