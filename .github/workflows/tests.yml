@@ -15,6 +15,6 @@ jobs:
       - name: "Test nonlinear solvers"
         run: python -m unittest tests/test_nonlinear_solver.py
       - name: "Run convergence and accuracy tests"
-        run: python -m unittest test_convergence_and_accuracy_simple_ode.py
+        run: python -m unittest tests/test_convergence_and_accuracy_simple_ode.py
       - name: "Run tests for van der Pol equation"
         run: python -m unittest tests/test_accuracy_van_der_pol_ode.py
