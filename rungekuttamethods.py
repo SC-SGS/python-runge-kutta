@@ -8,6 +8,7 @@ class ButcherTableauException(Exception):
 
 
 class RungeKuttaMethod:
+    """Base class for Runge-Kutta methods"""
 
     _name = None
 
@@ -26,7 +27,17 @@ class RungeKuttaMethod:
 
         if self._tableau_a.shape != (self._n_stages, self._n_stages):
             raise ButcherTableauException(
-                f'Butcher tableau of "{self._name}" has wrong shape. \n  Expected shape ({self._n_stages},{self._n_stages}).\n  Actual shape {self._tableau_a.shape}'
+                f'Butcher tableau (a coefficients) of "{self._name}" has wrong shape. \n  Expected shape ({self._n_stages},{self._n_stages}).\n  Actual shape {self._tableau_a.shape}'
+            )
+
+        if self._tableau_b.shape != (self._n_stages,):
+            raise ButcherTableauException(
+                f'Butcher tableau (b coefficients) of "{self._name}" has wrong shape. \n  Expected shape ({self._n_stages},).\n  Actual shape {self._tableau_b.shape}'
+            )
+
+        if self._tableau_c.shape != (self._n_stages,):
+            raise ButcherTableauException(
+                f'Butcher tableau (c coefficients) of "{self._name}" has wrong shape. \n  Expected shape ({self._n_stages},).\n  Actual shape {self._tableau_c.shape}'
             )
 
     def __init__(self):
@@ -43,7 +54,6 @@ class RungeKuttaMethod:
         print(
             f"{self._name}\nStages:{self._n_stages}\ntableau_a:\n{self._tableau_a}\ntableau_c:\n{self._tableau_c}\ntableau_b:\n{self._tableau_b}\n"
         )
-        # print(f"asdf {self._tableau_a}")
 
     def get_convergence_order(self):
         return self._convergence_order
@@ -71,11 +81,8 @@ class ExplicitRungeKuttaMethod(RungeKuttaMethod):
     def step(self, ode, y, t, dt, verbose=False):
         assert self._n_stages != None
 
-        # print(f"{self._n_stages}, {ode._system_size}")
-
         u = np.zeros((self._n_stages, ode._system_size, 1))
         for i_stage in range(0, self._n_stages):
-            # print( u[i_stage].shape, y.shape, 1 )
             u[i_stage] = y
             for j in range(0, i_stage):
                 u[i_stage] = u[i_stage] + (
@@ -109,11 +116,8 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
     def step(self, ode, y, t, dt, verbose=False):
         assert self._n_stages != None
 
-        # print(f"{self._n_stages}, {ode._system_size}")
-
         u = np.zeros((self._n_stages, ode._system_size, 1))
         for i_stage in range(0, self._n_stages):
-            # print( u[i_stage].shape, y.shape, 1 )
             constant_part = y
             for j in range(0, i_stage):
                 constant_part = constant_part + (
@@ -121,9 +125,6 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                     * self._tableau_a[i_stage, j]
                     * ode.evaluate(t + self._tableau_c[j] * dt, u[j])
                 )
-
-            # print( f"Construct identiy matrix with shape {y.shape}:" )
-            # identity_matrix = np.eye(y.ndim)
 
             # Solve (nonlinear) system of equations
             f = (
@@ -138,19 +139,6 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                 i_stage, i_stage
             ] * ode.evaluate_jacobian(t + self._tableau_c[i_stage] * dt, u_i)
 
-            # print(f"Constant part  {constant_part}")
-            # print(f"A:  {self._tableau_a}")
-            # print(f"A[{i_stage}][{i_stage}]: {self._tableau_a[i_stage, i_stage]}")
-            # print(f"y:  {y}, y.ndim {y.ndim}")
-            # print(f"Evaluate f {f(y)}")
-            # print(f"Evaluate df {df(y)}")
-            ##print(f"Evaluate f {f(y)}")
-            ##print(f"Evaluate df {df(y)}")
-            # print( f"Shapes:\n  y.shape: {y.shape}\n  f.shape: {f(y).shape}\n  df.shape: {df(y).shape} ")
-            ##asdf = f(y) / df(y)
-            # print( f"Nonlinear solver: {optimize.newton(func=f, x0=np.copy(y), fprime=df)}")
-
-            # u[i_stage] = optimize.newton(func=f, x0=np.copy(y), fprime=df)
             u[i_stage], _ = nonlinearsolvers.damped_newton_raphson(
                 f, df, y, verbose=verbose
             )

@@ -13,7 +13,6 @@ def damped_newton_raphson(
     f, df, x0, max_iter=20, tol_rel=1e-10, tol_abs=1e-10, verbose=False
 ):
     x = np.copy(x0)
-    # print(x, x0)
 
     residual_abs = np.linalg.norm(f(x), np.inf) + TOL_EPS
 
@@ -23,8 +22,6 @@ def damped_newton_raphson(
     if verbose:
         print(f"Rel. residual, Abs. residual")
         print(f"{residual_rel:2.6e}, {residual_abs:2.6e}")
-    # for i_iter in range(0, max_iter):
-    # while ( n_iter < max_iter and ( residual_abs > tol_abs or residual_rel > tol_rel) ):
     n_iter = 0
 
     damping_factor_min = 1e-4
