@@ -12,14 +12,6 @@ class OrdinaryDifferentialEquation:
     _system_size = None
 
     def _check_initial_condition(self):
-
-        if self._system_size == 1:
-            if self._initial_value.shape != (self._system_size,):
-                raise OrdinaryDifferentialEquationException(
-                    f'Initial condition of "{self._name}" problem has wrong shape. \n  Expected shape ({self._system_size},).\n  Actual shape {self._initial_value.shape}'
-                )
-            return
-
         if self._initial_value.shape != (self._system_size, 1):
             raise OrdinaryDifferentialEquationException(
                 f'Initial condition of "{self._name}" problem has wrong shape. \n  Expected shape ({self._system_size},1).\n  Actual shape {self._initial_value.shape}'
@@ -35,6 +27,10 @@ class OrdinaryDifferentialEquation:
             sys.exit(1)
 
     def evaluate(self, t, y):
+        """
+        :param t
+        :param y
+        """
         return None
 
     def evaluate_jacobian(self, t, y):
@@ -64,11 +60,12 @@ class ExponentialFunction(OrdinaryDifferentialEquation):
 
 
 class SimpleODE(OrdinaryDifferentialEquation):
+    """Simple"""
 
     _name = "Simple, non-stiff problem y(t)-2*sin(t)"
     _system_size = 1
 
-    def __init__(self, initial_value=np.array([1.0])):
+    def __init__(self, initial_value=np.array([[1.0]])):
         OrdinaryDifferentialEquation.__init__(self, initial_value=initial_value)
 
     def evaluate(self, t, y):
@@ -82,6 +79,24 @@ class SimpleODE(OrdinaryDifferentialEquation):
 
 
 class VanDerPol(OrdinaryDifferentialEquation):
+    """Van der Pol equation class
+
+    The Van der Pol equation is an ordinary differential equation of second order:
+
+        $ y''(t) = 8*(1-y(t)^2) * y'(t) - y(t) $.
+
+    The equation is rewritten in this implemenation as a system of ordinary
+    differential equations of first order:
+
+        \begin{equation*}
+        y_1'(t) = y_2(t)
+        y_2'(t) = 8*(1-y_1(t)^2) * y_2(t) - y_1(t)
+        \end{equation*}
+
+    The solution to this problem varies strongly in time which
+    makes it necessary to use methods of high(er) order and sufficiently small
+    time steps. Adaptive time step control is beneficial for this test case.
+    """
 
     _name = "Van der Pol equation"
     _system_size = 2
@@ -90,7 +105,6 @@ class VanDerPol(OrdinaryDifferentialEquation):
         OrdinaryDifferentialEquation.__init__(self, initial_value=initial_value)
 
     def evaluate(self, t, y):
-
         result = np.zeros((2, 1))
         result[0] = y[1]
         result[1] = 8.0 * (1.0 - y[0] ** 2) * y[1] - y[0]

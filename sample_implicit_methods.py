@@ -16,17 +16,16 @@ if __name__ == "__main__":
     t_end = 4
 
     fig, ax = plt.subplots()
-    plt.title(f"Solution over time using explicit methods")
+    plt.title(f"Solution over time using implicit methods")
 
     for ode_solver, marker in [
-        [rk.ExplicitEuler(), "o"],
-        [rk.ExplicitImprovedEuler(), "v"],
-        [rk.Heun(), "^"],
-        [rk.ClassicalRungeKutta(), "s"],
+        [rk.ImplicitEuler(), "o"],
+        [rk.ImplicitTrapezoidalRule(), "v"],
+        [rk.DIRK22(), "^"],
+        [rk.CrouzeixDIRK23(), "s"],
     ]:
         y, time_arr, _ = rk.solve_ode(ode_solver, ode, t0, dt, t_end, verbose=False)
         y = y.flatten()
-        # print( y, time_arr )
         ax.plot(time_arr, y, label=f"{ode_solver.get_name()}", marker=marker)
         print(
             f"Error for {ode_solver.get_name()}: {np.linalg.norm(y[-1] - ode.exact_solution(t_end)):1.6e}"

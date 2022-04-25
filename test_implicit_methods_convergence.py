@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import rungekuttamethods as rk
 import ordinarydifferentialequations
@@ -17,10 +16,10 @@ if __name__ == "__main__":
     plt.title(f"Errors over time step size")
 
     for ode_solver, marker in [
-        [rk.ExplicitEuler(), "o"],
-        [rk.ExplicitImprovedEuler(), "v"],
-        [rk.Heun(), "^"],
-        [rk.ClassicalRungeKutta(), "s"],
+        [rk.ImplicitEuler(), "o"],
+        [rk.ImplicitTrapezoidalRule(), "v"],
+        [rk.DIRK22(), "^"],
+        [rk.CrouzeixDIRK23(), "s"],
     ]:
 
         errors, time_step_sizes = rk.run_convergence_test(
@@ -31,6 +30,7 @@ if __name__ == "__main__":
             t_end=t_end,
             n_refinements=4,
             expected_order=ode_solver.get_convergence_order(),
+            verbose=False,
         )
         ax.loglog(
             time_step_sizes,
