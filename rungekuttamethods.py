@@ -328,7 +328,7 @@ def solve_ode(ode_integrator, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
 
 
 def run_convergence_test(
-    ode_solver, ode, t0, dt0, t_end, n_refinements, expected_order
+    ode_solver, ode, t0, dt0, t_end, n_refinements, expected_order, verbose=False
 ):
     """Solve a ode for a given ODE solver and number of time step refinements
 
@@ -361,7 +361,7 @@ def run_convergence_test(
     print("# Steps,         dt,        error, conv. rate,  expect. conv. rate")
     for i_refinement in range(0, n_refinements):
         dt = dt0 * 2 ** (-i_refinement)
-        y, _, n_steps = solve_ode(ode_solver, ode, t0, dt, t_end, verbose=False)
+        y, _, n_steps = solve_ode(ode_solver, ode, t0, dt, t_end, verbose=verbose)
         error = np.linalg.norm(y[-1] - ode.exact_solution(t_end))
         time_step_sizes.append(dt)
         errors.append(error)

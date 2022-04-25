@@ -30,6 +30,7 @@ if __name__ == "__main__":
             t_end=t_end,
             n_refinements=4,
             expected_order=ode_solver.get_convergence_order(),
+            verbose=False
         )
         ax.loglog(
             time_step_sizes,

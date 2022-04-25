@@ -51,9 +51,8 @@ def damped_newton_raphson(
         x_guess_residual_abs = np.linalg.norm(f(x_guess), np.inf)
         x_guess_residual_rel = x_guess_residual_abs / residual_abs_0
 
-        while (
-            x_guess_residual_abs > damping_coefficient * residual_abs
-            and x_guess_residual_rel > damping_coefficient * residual_rel
+        while x_guess_residual_abs > damping_coefficient * residual_abs and (
+            x_guess_residual_rel > tol_rel and x_guess_residual_abs > tol_abs
         ):
             damping_factor *= 0.5
             if damping_factor <= damping_factor_min:
@@ -73,11 +72,7 @@ def damped_newton_raphson(
                     f"x_guess_residual_abs: {x_guess_residual_abs}, x_guess_residual_rel: {x_guess_residual_rel}"
                 )
 
-            # print()
-            # sys.exit(1)
-
         x = x_guess
-        # print(f"s: {s}, x: {x}")
 
         residual_abs = x_guess_residual_abs
         residual_rel = x_guess_residual_rel
