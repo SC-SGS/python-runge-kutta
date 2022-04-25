@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     t0 = 0
     dt = (
-        2 ** -5
+        2**-5
     )  # Should be at most 2^-5 for explicit Euler for stability, but result will still be poor. 2^-4 works ok for higher order methods.
     t_end = 30
 

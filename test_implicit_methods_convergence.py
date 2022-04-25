@@ -9,7 +9,7 @@ if __name__ == "__main__":
     ode = ordinarydifferentialequations.SimpleODE()
 
     t = 0
-    dt = 2 ** -4
+    dt = 2**-4
     t_end = 4
 
     fig, ax = plt.subplots()

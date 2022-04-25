@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     t0 = 0
     # Time step size dt=0.1 should give stable result for implicit methods already, but with varying quality.
-    dt = 10 ** -1
+    dt = 10**-1
 
     t_end = 30
 
