@@ -1,0 +1,16 @@
+name: Style check
+
+on: [push]
+
+jobs:
+  style_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8.10'
+      - name: "Install style numpy"
+        run: pip install --user numpy
+      - name: "Run convergence and accuracy tests"
+        run: python -m unittest test_convergence_and_accuracy_simple_ode.py
