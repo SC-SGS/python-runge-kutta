@@ -20,6 +20,16 @@ class OrdinaryDifferentialEquation:
     def __init__(self, initial_value=None):
         self._initial_value = initial_value
 
+        if self._name == None:
+            raise OrdinaryDifferentialEquationException(
+                f'Name property "_name" of class {self.__class__.__name__} is not set.'
+            )
+
+        if self._system_size == None:
+            raise OrdinaryDifferentialEquationException(
+                f'System size property "_system_size" of {self._name} is not set.'
+            )
+
         try:
             self._check_initial_condition()
         except OrdinaryDifferentialEquationException as err:
@@ -27,14 +37,14 @@ class OrdinaryDifferentialEquation:
             sys.exit(1)
 
     def evaluate(self, t, y):
-        """
-        :param t
-        :param y
-        """
-        return None
+        raise OrdinaryDifferentialEquationException(
+            f'Method "evaluate" is not implemented for {self._name}.'
+        )
 
     def evaluate_jacobian(self, t, y):
-        return None
+        raise OrdinaryDifferentialEquationException(
+            f'Method "evaluate_jacobian" is not implemented for {self._name}.'
+        )
 
     def get_initial_value(self):
         return self._initial_value

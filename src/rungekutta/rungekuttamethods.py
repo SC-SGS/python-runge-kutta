@@ -7,6 +7,10 @@ class ButcherTableauException(Exception):
     pass
 
 
+class RungeKuttaMethodException(Exception):
+    pass
+
+
 class RungeKuttaMethod:
     """Base class for Runge-Kutta methods"""
 
@@ -41,6 +45,22 @@ class RungeKuttaMethod:
             )
 
     def __init__(self):
+
+        if self._name == None:
+            raise RungeKuttaMethodException(
+                f'Name property "_name" of class {self.__class__.__name__} is not set.'
+            )
+
+        if self._n_stages == None:
+            raise RungeKuttaMethodException(
+                f'Number of stages property "_n_stages" of {self._name} is not set.'
+            )
+
+        if self._n_stages == None:
+            raise RungeKuttaMethodException(
+                f'Convergence order property "_convergence_order" of {self._name} is not set.'
+            )
+
         try:
             self._check_tableau()
         except ButcherTableauException as err:
@@ -48,7 +68,9 @@ class RungeKuttaMethod:
             sys.exit(1)
 
     def step(self, ode, y, t, dt, verbose=False):
-        return None, None
+        raise RungeKuttaMethodException(
+            f'Method "step" is not implemented for {self._name}'
+        )
 
     def report(self):
         print(
