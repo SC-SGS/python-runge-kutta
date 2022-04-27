@@ -124,7 +124,20 @@ class ExplicitRungeKuttaMethod(RungeKuttaMethod):
         return y_new, t + dt
 
 
-class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
+class ImplicitRungeKuttaMethod(RungeKuttaMethod):
+    def __init__(
+        self,
+        newton_maximum_iterations=30,
+        newton_tolerance_absolute=1e-12,
+        newton_tolerance_relative=1e-12,
+    ):
+        RungeKuttaMethod.__init__(self)
+        self._newton_maximum_iterations = newton_maximum_iterations
+        self._newton_tolerance_absolute = newton_tolerance_absolute
+        self._newton_tolerance_relative = newton_tolerance_relative
+
+
+class DiagonallyImplicitRungeKuttaMethod(ImplicitRungeKuttaMethod):
     def _check_tableau(self):
         RungeKuttaMethod._check_tableau(self)
         if self._n_stages > 1:
@@ -161,9 +174,20 @@ class DiagonallyImplicitRungeKuttaMethod(RungeKuttaMethod):
                 i_stage, i_stage
             ] * ode.evaluate_jacobian(t + self._tableau_c[i_stage] * dt, u_i)
 
-            u[i_stage], _ = nonlinearsolvers.damped_newton_raphson(
-                f, df, y, verbose=verbose
-            )
+            try:
+                u[i_stage], _ = nonlinearsolvers.damped_newton_raphson(
+                    f,
+                    df,
+                    y,
+                    max_iter=self._newton_maximum_iterations,
+                    tol_rel=self._newton_tolerance_relative,
+                    tol_abs=self._newton_tolerance_absolute,
+                    verbose=verbose,
+                )
+            except nonlinearsolvers.NonlinearSolverException as err:
+                print(f"Dampled Newton solver did not converge.")
+                print(err)
+                sys.exit(1)
 
         y_new = np.copy(y)
         for i_stage in range(0, self._n_stages):
