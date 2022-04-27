@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import rungekuttamethods as rk
-import ordinarydifferentialequations
+from rungekutta import rungekuttamethods as rk
+from rungekutta import ordinarydifferentialequations
 import numpy as np
 
 import unittest

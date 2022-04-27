@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import nonlinearsolvers as nls
+from rungekutta import nonlinearsolvers as nls
 import numpy as np
 
 import unittest

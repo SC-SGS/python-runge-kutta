@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-import nonlinearsolvers
+from . import nonlinearsolvers
 
 
 class ButcherTableauException(Exception):

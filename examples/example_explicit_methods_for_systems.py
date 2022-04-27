@@ -2,8 +2,8 @@
 
 import matplotlib.pyplot as plt
 
-import rungekuttamethods as rk
-import ordinarydifferentialequations
+from rungekutta import rungekuttamethods as rk
+from rungekutta import ordinarydifferentialequations
 
 if __name__ == "__main__":
 
