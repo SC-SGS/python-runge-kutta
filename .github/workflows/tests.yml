@@ -3,7 +3,7 @@ name: Convergence and accuracy tests
 on: [push]
 
 jobs:
-  style_check:
+  accuracy_tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,6 +12,8 @@ jobs:
           python-version: '3.8.10'
       - name: "Install style numpy"
         run: pip install --user numpy
+      - name: "Install rungekutta module"
+        run: pip install .
       - name: "Test nonlinear solvers"
         run: python -m unittest tests/test_nonlinear_solver.py
       - name: "Run convergence and accuracy tests"

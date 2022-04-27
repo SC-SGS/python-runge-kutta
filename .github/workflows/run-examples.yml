@@ -1,0 +1,32 @@
+name: Run example codes
+
+on: [push]
+
+jobs:
+  run_examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8.10'
+      - name: "Install style numpy matplotlib"
+        run: pip install --user numpy matplotlib
+      - name: "Install rungekutta module"
+        run: pip install --user .
+      - name: "Run examples for explicit methods"
+        run: |
+          echo "Run example: example_explicit_methods.py"
+          python examples/example_explicit_methods.py
+          echo "Run example: example_explicit_methods_for_systems.py"
+          python examples/example_explicit_methods_for_systems.py
+          echo "Run example: example_test_explicit_methods_convergence.py"
+          python examples/example_test_explicit_methods_convergence.py
+      - name: "Run examples for implicit methods"
+        run: |
+          echo "Run example: example_implicit_methods.py"
+          python examples/example_implicit_methods.py
+          echo "Run example: example_implicit_methods_for_systems.py"
+          python examples/example_implicit_methods_for_systems.py
+          echo "Run example: example_test_implicit_methods_convergence.py"
+          python examples/example_test_implicit_methods_convergence.py
