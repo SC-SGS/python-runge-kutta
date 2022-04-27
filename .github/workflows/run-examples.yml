@@ -16,11 +16,17 @@ jobs:
         run: pip install --user .
       - name: "Run examples for explicit methods"
         run: |
+          echo "Run example: example_explicit_methods.py"
           python examples/example_explicit_methods.py
+          echo "Run example: example_explicit_methods_for_systems.py"
           python examples/example_explicit_methods_for_systems.py
+          echo "Run example: example_test_explicit_methods_convergence.py"
           python examples/example_test_explicit_methods_convergence.py
-      - name: "Run examples for explicit methods"
+      - name: "Run examples for implicit methods"
         run: |
+          echo "Run example: example_implicit_methods.py"
           python examples/example_implicit_methods.py
+          echo "Run example: example_implicit_methods_for_systems.py"
           python examples/example_implicit_methods_for_systems.py
+          echo "Run example: example_test_implicit_methods_convergence.py"
           python examples/example_test_implicit_methods_convergence.py
