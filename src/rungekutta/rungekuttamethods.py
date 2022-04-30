@@ -1,18 +1,39 @@
+"""Implementation of explicit and implicit Runge-Kutta methods.
+
+The ordinary differential equations to be solved should be derived from the :py:class:`OrdinaryDifferentialEquation` that is defined in the :py:mod:`ordinarydifferentialequationsmodule`. The module uses the damped Newton method implemented from the :py:mod:`nonlinearsolvers` module if an implicit Runge-Kutta method is used is.
+"""
+
 import numpy as np
 import sys
 from . import nonlinearsolvers
 
 
 class ButcherTableauException(Exception):
+    """_summary_
+
+    :param Exception: _description_
+    :type Exception: _type_
+    """
     pass
 
 
 class RungeKuttaMethodException(Exception):
+    """_summary_
+
+    :param Exception: _description_
+    :type Exception: _type_
+    """
     pass
 
 
 class RungeKuttaMethod:
-    """Base class for Runge-Kutta methods"""
+    """_summary_
+
+    :raises ButcherTableauException: _description_
+    :raises RungeKuttaMethodException: _description_
+    :return: _description_
+    :rtype: _type_
+    """
 
     _name = None
 
@@ -344,9 +365,9 @@ class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 def solve_ode(ode_solver, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
     """Solve an ordinary differential equation (ODE)"""
     time_arr, y_arr = [], []
-    y_arr.append(ode.get_initial_value())
+    y_arr.append(ode.get_initial_condition())
     time_arr.append(t)
-    y_local = np.copy(ode.get_initial_value())
+    y_local = np.copy(ode.get_initial_condition())
     i_steps = 0
     while t < t_end - TIME_EPS:
         if verbose:

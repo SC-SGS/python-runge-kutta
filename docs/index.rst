@@ -10,6 +10,9 @@ Welcome to rungekutta's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   source/rungekutta
+   source/examples
+
 .. include:: ../README.rst
 
 Indices and tables
