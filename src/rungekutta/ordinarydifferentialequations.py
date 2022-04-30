@@ -179,16 +179,18 @@ class VanDerPol(OrdinaryDifferentialEquation):
     The Van der Pol equation is an ordinary differential equation of second order:
 
     .. math::
-        y''(t) = 8*(1-y(t)^2) * y'(t) - y(t).
+        y''(t) = 8\cdot(1-y(t)^2) \cdot y'(t) - y(t).
 
     The equation is rewritten in this implemenation as a system of ordinary
     differential equations of first order:
 
     .. math::
         \\begin{equation*}
-        y_1'(t) = y_2(t)
-        y_2'(t) = 8*(1-y_1(t)^2) * y_2(t) - y_1(t)
-        \\end{equation*}.
+        \\begin{aligned}
+        y_1'(t) &= y_2(t), \\\\
+        y_2'(t) &= 8\cdot(1-y_1(t)^2) \cdot y_2(t) - y_1(t).
+        \\end{aligned}
+        \\end{equation*}
 
     The solution to this problem varies strongly in time which
     makes it necessary to use methods of high(er) order and sufficiently small
