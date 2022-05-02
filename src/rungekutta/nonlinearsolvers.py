@@ -13,6 +13,7 @@ class NonlinearSolverException(Exception):
 
     This exception is thrown if a nonlinear solver is unable to converge.
     """
+
     pass
 
 

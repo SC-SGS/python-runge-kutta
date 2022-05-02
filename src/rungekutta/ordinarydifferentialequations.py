@@ -16,6 +16,7 @@ class OrdinaryDifferentialEquationException(Exception):
     3. private member variables are not set.
     4. a member function is not implemented as expected.
     """
+
     pass
 
 
@@ -25,19 +26,19 @@ class OrdinaryDifferentialEquation:
     Defines the properties an ordinary differential equation object must have such that it can be solved by the Runge-Kutta methods included in this package. It is assumed that the ordinary differential equations is of first order, i.e., only first order time derivatives appear, and is of shape
 
     .. math::
-        y(t) = f(t, y).
+        \\vec{y}(t) = \\vec{f}(t, \\vec{y}).
 
     Additionally, a suitable initial condition
 
     .. math::
-        y(t_0) = y_0
+        \\vec{y}(t_0) = \\vec{y}_0
 
     is known. The ordinary differential equation may be a system of first order differential equations. Higher order differential equations must be rewritten as a system of first-order differential equations.
 
     The constructor sets the initial condition and checks whether the initial condition was set correctly and has the correct shape. Additionaly it is checked whether the private member variables are set.
 
     :param initial_condition: Initial condition of the ordinary differential equation. Must be overwritten with sensible initial condition for derived classes., defaults to None
-    :type initial_condition: Numpy array, optional
+    :type initial_condition: Numpy array, shape (self._system_size, 1), optional
     :raises OrdinaryDifferentialEquationException: The initial condition is not set, incorrect or any of the private member variables is not set.
     """
 
@@ -86,12 +87,12 @@ class OrdinaryDifferentialEquation:
         Evaluates the expression:
 
         .. math::
-            y(t) = f(t, y).
+            \\vec{y}(t) = \\vec{f}(t, \\vec{y}).
 
         :param t: Time :math:`t`
-        :type t: fload
-        :param y: Solution :math:`y(t)` at current time :math:`t`
-        :type y: Numpy array
+        :type t: float
+        :param y: Solution :math:`\\vec{y}(t)` at current time :math:`t`
+        :type y: Numpy array with shape (self._system_size, 1)
         :raises OrdinaryDifferentialEquationException: The function has not been overwritten by the deriving class.
         """
         raise OrdinaryDifferentialEquationException(
@@ -99,42 +100,70 @@ class OrdinaryDifferentialEquation:
         )
 
     def evaluate_jacobian(self, t, y):
-        """_summary_
+        """Evaluates the Jacobian of the ordinary differential equation at given time and using the given data.
 
-        :param t: _description_
-        :type t: _type_
-        :param y: _description_
-        :type y: _type_
-        :raises OrdinaryDifferentialEquationException: _description_
+        Evaluates the expression
+
+        .. math::
+            \\vec{f}'(t, y) = \\left[ \\frac{\\partial \\vec{f}}{\\partial y_1} \\ldots \\frac{\partial \\vec{f}}{\\partial y_n} \\right]
+
+        The result is a matrix.
+
+        :param t: Time :math:`t`
+        :type t: float
+        :param y: Jacobian matrix :math:`\\vec{f}(t, y)` at current time :math:`t`
+        :type y: Numpy array, shape (self._system_size,self._system_size)
+        :raises OrdinaryDifferentialEquationException: The function has not been overwritten by the deriving class.
         """
         raise OrdinaryDifferentialEquationException(
             f'Method "evaluate_jacobian" is not implemented for {self._name}.'
         )
 
     def get_initial_condition(self):
-        """_summary_
+        """Returns the initial condition attached to the ordinary differential equation.
 
-        :return: _description_
-        :rtype: _type_
+        The initial condition that is passed to the constructor can be obtained via this function.
+
+        :return: The initial condition of the ordinary differential equation.
+        :rtype: Numpy array, shape (self._system_size,)
         """
         return self._initial_condition
 
     def get_name(self):
+        """Get name of the ordinary differential equation
+
+        :return: Name of the ordinary differential equation
+        :rtype: string
+        """
         return self._name
 
 
-class ExponentialFunction(OrdinaryDifferentialEquation):
-    """_summary_
+class DahlquistTestproblem(OrdinaryDifferentialEquation):
+    """Dahlquist's test problem
 
-    :param OrdinaryDifferentialEquation: _description_
-    :type OrdinaryDifferentialEquation: _type_
-    :return: _description_
-    :rtype: _type_
+    Dahlquist's test problem of shape
+
+    .. math::
+        y'(t) = -\\lambda \\cdot y
+
+    where :math:`\\lambda < 0`. This is a stiff problem and should be hard to solve for explicit time integrators.
+
+    :param OrdinaryDifferentialEquation: Base class
+    :type OrdinaryDifferentialEquation: Class representing ordinary differential equations.
     """
-    _name = "Exponential function"
+
+    _name = "Dahlquist's test problem"
     _system_size = 1
 
     def __init__(self, initial_condition=np.array([1.0]), lam=-1.0):
+        """Constructor
+
+        :param initial_condition: Initial condition of the ordinary differential equation. Must be overwritten with sensible initial condition for derived classes., defaults to np.array([1.0])
+        :type initial_condition: Numpy array, optional
+        :param lam: Parameter influencing stiffnes of the problem, defaults to -1.0
+        :type lam: float, optional
+        """
+
         OrdinaryDifferentialEquation.__init__(self, initial_condition=initial_condition)
         self._lambda = lam
 
@@ -149,12 +178,22 @@ class ExponentialFunction(OrdinaryDifferentialEquation):
 
 
 class SimpleODE(OrdinaryDifferentialEquation):
-    """_summary_
+    """A simple ordinary differential equation for testing
 
-    :param OrdinaryDifferentialEquation: _description_
-    :type OrdinaryDifferentialEquation: _type_
-    :return: _description_
-    :rtype: _type_
+    Evaluates
+
+    .. math::
+        y'(t) = y - 2 \\cdot \\sin(t)
+
+    which has an analytical solution given by
+
+    .. math::
+        y(t) = \\sin(t) + \\cos(t)
+
+    This is a good test problem to verify newly implemented solvers since the solution depends explicitly on the time :math:`t`.
+
+    :param OrdinaryDifferentialEquation: Base class
+    :type OrdinaryDifferentialEquation: Class representing ordinary differential equations.
     """
 
     _name = "Simple, non-stiff problem y(t)-2*sin(t)"
@@ -196,10 +235,8 @@ class VanDerPol(OrdinaryDifferentialEquation):
     makes it necessary to use methods of high(er) order and sufficiently small
     time steps. Adaptive time step control is beneficial for this test case.
 
-    :param OrdinaryDifferentialEquation: _description_
-    :type OrdinaryDifferentialEquation: _type_
-    :return: _description_
-    :rtype: _type_
+    :param OrdinaryDifferentialEquation: Base class
+    :type OrdinaryDifferentialEquation: Class representing ordinary differential equations.
     """
 
     _name = "van der Pol equation"

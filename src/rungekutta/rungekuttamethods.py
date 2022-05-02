@@ -14,6 +14,7 @@ class ButcherTableauException(Exception):
     :param Exception: _description_
     :type Exception: _type_
     """
+
     pass
 
 
@@ -23,6 +24,7 @@ class RungeKuttaMethodException(Exception):
     :param Exception: _description_
     :type Exception: _type_
     """
+
     pass
 
 
