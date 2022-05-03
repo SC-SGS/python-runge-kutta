@@ -100,15 +100,20 @@ class RungeKuttaMethod:
     def step(self, ode, y, t, dt, verbose=False):
         """Compute one time step
 
-        :param ode: Object describing the ordinary differential equation
-        :type ode: :py:mod:`ordinarydifferentialequations`
-        :param y: _description_
-        :type y: _type_
-        :param t: _description_
-        :type t: _type_
-        :param dt: _description_
-        :type dt: _type_
-        :param verbose: _description_, defaults to False
+        This function computes the solution at a new time step, i.e. it computes
+
+        .. math::
+            \\vec{y}^{i+1} = \\vec{y}^{i} + \\sum^{n}_j \\gamma_j \\vec{k}_j
+
+        :param ode: Object describing the ODE.
+        :type ode: class OrdinaryDifferentialEquation or any child class.
+        :param y: Value to
+        :type y: Numpy array
+        :param t: Time :math:`t` at starting point.
+        :type t: float
+        :param dt: Time step size :math:`dt`.
+        :type dt: float
+        :param verbose: Flag indicating whether the solving procedure should be verbose. If set to `True` intermediate solutions and steps (mainly) of the nonlinear solver will be pritned to screen., defaults to False
         :type verbose: bool, optional
         :raises RungeKuttaMethodException: _description_
         """
@@ -117,14 +122,26 @@ class RungeKuttaMethod:
         )
 
     def report(self):
+        """Prints Butcher tableau to screen
+        """
         print(
             f"{self._name}\nStages:{self._n_stages}\ntableau_a:\n{self._tableau_a}\ntableau_c:\n{self._tableau_c}\ntableau_b:\n{self._tableau_b}\n"
         )
 
     def get_convergence_order(self):
+        """Returns (expected) order of convergence of the method
+
+        :return: Order of convergence
+        :rtype: float
+        """
         return self._convergence_order
 
     def get_name(self):
+        """Returns name string of Runge-Kutta method
+
+        :return: Name of class
+        :rtype: string
+        """
         return self._name
 
 
@@ -386,7 +403,25 @@ class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 
 
 def solve_ode(ode_solver, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
-    """Solve an ordinary differential equation (ODE)"""
+    """Solve an ordinary differential equation (ODE) using a given ODE solver, time interval and time step size
+
+    :param ode_solver: A Runge-Kutta solver object.
+    :type ode_solver: class RungeKuttaMethod or any child class.
+    :param ode: Object describing the ODE.
+    :type ode: class OrdinaryDifferentialEquation or any child class.
+    :param t: Time :math:`t` at which time integration should start.
+    :type t: float
+    :param dt: Time step size :math:`dt` to use for time integration.
+    :type dt: float
+    :param t_end: Time :math:`t_{\\mathrm{end}}` at which time integration should end.
+    :type t_end: float
+    :param verbose: Flag indicating whether the solving procedure should be verbose. If set to `True` intermediate solutions and steps (mainly) of the nonlinear solver will be pritned to screen., defaults to False
+    :type verbose: bool, optional
+    :param TIME_EPS: Defines how close to :math:`t_{\\mathrm{end}}` the simulation should end., defaults to 1e-12
+    :type TIME_EPS: float, optional
+    :return: Tuple containing solution at all time steps :math:`t_{i}`, all corresponding times :math:`t_{i}` and the number of needed time steps
+    :rtype: tuple( Numpy array, list, integer )
+    """
     time_arr, y_arr = [], []
     y_arr.append(ode.get_initial_condition())
     time_arr.append(t)
@@ -408,10 +443,13 @@ def solve_ode(ode_solver, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
 def run_convergence_test(
     ode_solver, ode, t0, dt0, t_end, n_refinements, expected_order, verbose=False
 ):
-    """Solve a ode for a given ODE solver and number of time step refinements
+    """Solve a ordinary differential equation (ODE) for a given ODE solver and number of time step refinements
 
     :param ode_solver: A Runge-Kutta solver object.
-    :type ode_solver: class RungeKuttaMethod or any child class.
+    :type RungeKuttaMethod: class RungeKuttaMethod or any child class.
+
+    :param ode: Object describing the ODE.
+    :type ode: class OrdinaryDifferentialEquation or any child class.
 
     :param t0: Initial time from which the integration starts. Usually t0 is zero
                and t0 has to match the initial conditions.
