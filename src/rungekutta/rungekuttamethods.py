@@ -1,18 +1,45 @@
+"""Implementation of explicit and implicit Runge-Kutta methods.
+
+The ordinary differential equations to be solved should be derived from the :py:class:`OrdinaryDifferentialEquation` that is defined in the :py:mod:`ordinarydifferentialequationsmodule`. The module uses the damped Newton method implemented from the :py:mod:`nonlinearsolvers` module if an implicit Runge-Kutta method is used is.
+"""
+
 import numpy as np
 import sys
 from . import nonlinearsolvers
 
 
 class ButcherTableauException(Exception):
+    """Exception to be thrown by Butcher tableaus
+
+    This exception is thrown if:
+
+    1. The Butcher tableau has the wrong shape, i.e. the coefficient vectors for coefficient matrix have the wrong shape.
+    2. The Butcher tableau has wrong non-zero pattern which make the method implicit or diagonally implicit if this is not expected.
+    """
+
     pass
 
 
 class RungeKuttaMethodException(Exception):
+    """Exception to be thrown by Runge-Kutta methods
+
+    This exception is thrown if:
+
+    1. If any class member is not set by a class deriving from a Runge-Kutta base class.
+    2. If a needed class member function is not overwritten by a class deriving from a Runge-Kutta base class.
+    """
+
     pass
 
 
 class RungeKuttaMethod:
-    """Base class for Runge-Kutta methods"""
+    """Base class for Runge-Kutta methods
+
+    This class defines the basic members and member functions a Runge-Kutta method should have.
+
+    :raises ButcherTableauException: The Butcher tableau is either not set or does not have th expected shape.
+    :raises RungeKuttaMethodException: The mandatory class members or member functions are not overwritten by the deriving class.
+    """
 
     _name = None
 
@@ -25,7 +52,12 @@ class RungeKuttaMethod:
     _convergence_order = None
 
     def _check_tableau(self):
+        """Checks whether the Butcher tableau has the expected shape
 
+        :raises ButcherTableauException: The coefficent matrix :math:`A` does not have shape (self._n_stages, self._n_stages)
+        :raises ButcherTableauException: The coefficient vector :math:`b` containing the update coefficients does not have shape (self._n_stages,)
+        :raises ButcherTableauException: The coefficient vector :math:`c` containing the coefficients for intermediate time steps does not have shape (self._n_stages,)
+        """
         if self._tableau_a.shape == (1,) and self._n_stages == 1:
             return
 
@@ -45,7 +77,6 @@ class RungeKuttaMethod:
             )
 
     def __init__(self):
-
         if self._name == None:
             raise RungeKuttaMethodException(
                 f'Name property "_name" of class {self.__class__.__name__} is not set.'
@@ -68,19 +99,49 @@ class RungeKuttaMethod:
             sys.exit(1)
 
     def step(self, ode, y, t, dt, verbose=False):
+        """Compute one time step
+
+        This function computes the solution at a new time step, i.e. it computes
+
+        .. math::
+            \\vec{y}^{i+1} = \\vec{y}^{i} + \\sum^{n}_j \\gamma_j \\vec{k}_j
+
+        :param ode: Object describing the ODE.
+        :type ode: class OrdinaryDifferentialEquation or any child class.
+        :param y: Value to
+        :type y: Numpy array
+        :param t: Time :math:`t` at starting point.
+        :type t: float
+        :param dt: Time step size :math:`dt`.
+        :type dt: float
+        :param verbose: Flag indicating whether the solving procedure should be verbose. If set to `True` intermediate solutions and steps (mainly) of the nonlinear solver will be pritned to screen., defaults to False
+        :type verbose: bool, optional
+        :raises RungeKuttaMethodException: _description_
+        """
         raise RungeKuttaMethodException(
             f'Method "step" is not implemented for {self._name}'
         )
 
     def report(self):
+        """Prints Butcher tableau to screen"""
         print(
             f"{self._name}\nStages:{self._n_stages}\ntableau_a:\n{self._tableau_a}\ntableau_c:\n{self._tableau_c}\ntableau_b:\n{self._tableau_b}\n"
         )
 
     def get_convergence_order(self):
+        """Returns (expected) order of convergence of the method
+
+        :return: Order of convergence
+        :rtype: float
+        """
         return self._convergence_order
 
     def get_name(self):
+        """Returns name string of Runge-Kutta method
+
+        :return: Name of class
+        :rtype: string
+        """
         return self._name
 
 
@@ -342,11 +403,29 @@ class CrouzeixDIRK23(DiagonallyImplicitRungeKuttaMethod):
 
 
 def solve_ode(ode_solver, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
-    """Solve an ordinary differential equation (ODE)"""
+    """Solve an ordinary differential equation (ODE) using a given ODE solver, time interval and time step size
+
+    :param ode_solver: A Runge-Kutta solver object.
+    :type ode_solver: class RungeKuttaMethod or any child class.
+    :param ode: Object describing the ODE.
+    :type ode: class OrdinaryDifferentialEquation or any child class.
+    :param t: Time :math:`t` at which time integration should start.
+    :type t: float
+    :param dt: Time step size :math:`dt` to use for time integration.
+    :type dt: float
+    :param t_end: Time :math:`t_{\\mathrm{end}}` at which time integration should end.
+    :type t_end: float
+    :param verbose: Flag indicating whether the solving procedure should be verbose. If set to `True` intermediate solutions and steps (mainly) of the nonlinear solver will be pritned to screen., defaults to False
+    :type verbose: bool, optional
+    :param TIME_EPS: Defines how close to :math:`t_{\\mathrm{end}}` the simulation should end., defaults to 1e-12
+    :type TIME_EPS: float, optional
+    :return: Tuple containing solution at all time steps :math:`t_{i}`, all corresponding times :math:`t_{i}` and the number of needed time steps
+    :rtype: tuple( Numpy array, list, integer )
+    """
     time_arr, y_arr = [], []
-    y_arr.append(ode.get_initial_value())
+    y_arr.append(ode.get_initial_condition())
     time_arr.append(t)
-    y_local = np.copy(ode.get_initial_value())
+    y_local = np.copy(ode.get_initial_condition())
     i_steps = 0
     while t < t_end - TIME_EPS:
         if verbose:
@@ -364,10 +443,13 @@ def solve_ode(ode_solver, ode, t, dt, t_end, verbose=False, TIME_EPS=1e-12):
 def run_convergence_test(
     ode_solver, ode, t0, dt0, t_end, n_refinements, expected_order, verbose=False
 ):
-    """Solve a ode for a given ODE solver and number of time step refinements
+    """Solve a ordinary differential equation (ODE) for a given ODE solver and number of time step refinements
 
     :param ode_solver: A Runge-Kutta solver object.
-    :type ode_solver: class RungeKuttaMethod or any child class.
+    :type RungeKuttaMethod: class RungeKuttaMethod or any child class.
+
+    :param ode: Object describing the ODE.
+    :type ode: class OrdinaryDifferentialEquation or any child class.
 
     :param t0: Initial time from which the integration starts. Usually t0 is zero
                and t0 has to match the initial conditions.

@@ -2,6 +2,8 @@
 
 ## No release
 
+- Add license (GPLv3)
+- Added docstrings to source code and set up Sphinx documentation generator.
 - Packaged module such that it can be installed using pip.
 - Added some tests (see `tests/` directory)
 - Added some example codes (see `examples/` directory)

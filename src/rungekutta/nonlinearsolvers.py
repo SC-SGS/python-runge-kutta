@@ -1,17 +1,71 @@
 #!/usr/bin/python3
+"""Nonlinear solver module
 
+This module contains methods for solving nonlinear systems of equations and is used by the :py:mod:`rungekutta` module.
+"""
 import numpy as np
 
 TOL_EPS = 1e-15
 
 
 class NonlinearSolverException(Exception):
+    """Class for expections concerning nonlinear solvers
+
+    This exception is thrown if a nonlinear solver is unable to converge.
+    """
+
     pass
 
 
 def damped_newton_raphson(
     f, df, x0, max_iter=20, tol_rel=1e-10, tol_abs=1e-10, verbose=False
 ):
+    """Solve a given (non)linear sytem of equations and solve it using a damped Newton-Raphson method. The problem
+
+    .. math::
+        f(x) = 0
+
+    is solved iteratively by solving
+
+    .. math::
+        -f(x^k)/f'(x^k) = s^k
+
+    and updating
+
+    .. math::
+        x^{k+1} = x^k + \lambda \cdot s^k
+
+    where :math:`\lambda` is the damping factor. The unknown may be a vector, i.e, :math:`x \\in \\mathbb{R}^{n}$.
+    The iterative procedure is stopped if any of the following conditions is fulfilled:
+
+        1. `max_iter` iterations of the algorithm have been carried.
+        2. The relative residual is small enough, i.e.,
+            .. math::
+               \lVert f(x^k) / f(x^0) \\rVert_{\infty} < \mathrm{tol_rel}
+        3. The absolute residual is small enough, i.e.,
+            .. math::
+                \lVert f(x^k) \\rVert_\infty < \mathrm{tol_abs}
+
+    The implementation is based on W. Dahmen and A. Reusken: "Numerik für Ingenieure und Naturwissenschaftler", 2008, `doi:10.1007/978-3-540-76493-9 <https://dx.doi.org/10.1007/978-3-540-76493-9>`_
+
+    :param f: Function to evaluate in order to get the residual.
+    :type f: function
+    :param df:  Function to evaluate in order to get the jacobian of f.
+    :type df: function that should return a numpy array of shape (n,n)
+    :param x0: Initial guess for solving the nonlinear problem f(x)=0.
+    :type x0: Numpy array of dimension (n,1)
+    :param max_iter:  Newton iterations to carry out at most., defaults to 20
+    :type max_iter: int, optional
+    :param tol_rel: Relative residual of the solution update to be reached., defaults to 1e-10
+    :type tol_rel: float, optional
+    :param tol_abs: Absolute residual of the solution update to be reached., defaults to 1e-10
+    :type tol_abs: float, optional
+    :param verbose:  Flag indicating whether the solving procedure should be verbose. If set to `True`, many intermediate quantities and the computed residuals will be printed to the screen., defaults to False
+    :type verbose: bool, optional
+    :raises NonlinearSolverException: Thrown if the damped Newton methods diverges either due to the damping factor being decreased too much or when the maximum number of Newton steps `max_iter` is reached.
+    :return: Returns :math:`x` with :math:`f(x) \\approx 0` and the number of Newton iterations carried out.
+    :rtype: tuple[ np.array(n, 1), int ]
+    """
     x = np.copy(x0)
 
     residual_abs = np.linalg.norm(f(x), np.inf) + TOL_EPS
