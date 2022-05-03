@@ -19,13 +19,13 @@ The module can be installed via ``pip``. If you want to develop this package, in
 
 1. Clone the repository from GitHub and install it
 
-    .. code::
+    .. code-block::
         git clone https://github.com/ajaust/python-runge-kutta
         pip install --user python-runge-kutta
 
 2. Install the module directly from GitHub
 
-    .. code::
+    .. code-block::
         pip instal --user https://github.com/ajaust/python-runge-kutta/archive/master.zip
 
 The installed module is available under the name ``rungekutta``.
@@ -36,7 +36,7 @@ Usage
 This example shows how to to solve one of the provided ODE examples with an already implemented
 Runge-Kutta method. We use the explicit Euler method:
 
-.. code::python
+.. code-block:: python
     import matplotlib.pyplot as plt
     import numpy as np
 
