@@ -36,7 +36,7 @@ Usage
 This example shows how to to solve one of the provided ODE examples with an already implemented
 Runge-Kutta method. We use the explicit Euler method:
 
-.. code-block:: python
+.. code:: python
     import matplotlib.pyplot as plt
     import numpy as np
 
