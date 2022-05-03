@@ -9,32 +9,35 @@ from . import nonlinearsolvers
 
 
 class ButcherTableauException(Exception):
-    """_summary_
+    """Exception to be thrown by Butcher tableaus
 
-    :param Exception: _description_
-    :type Exception: _type_
+    This exception is thrown if:
+
+    1. The Butcher tableau has the wrong shape, i.e. the coefficient vectors for coefficient matrix have the wrong shape.
+    2. The Butcher tableau has wrong non-zero pattern which make the method implicit or diagonally implicit if this is not expected.
     """
-
     pass
 
 
 class RungeKuttaMethodException(Exception):
-    """_summary_
+    """Exception to be thrown by Runge-Kutta methods
 
-    :param Exception: _description_
-    :type Exception: _type_
+    This exception is thrown if:
+
+    1. If any class member is not set by a class deriving from a Runge-Kutta base class.
+    2. If a needed class member function is not overwritten by a class deriving from a Runge-Kutta base class.
     """
 
     pass
 
 
 class RungeKuttaMethod:
-    """_summary_
+    """Base class for Runge-Kutta methods
 
-    :raises ButcherTableauException: _description_
-    :raises RungeKuttaMethodException: _description_
-    :return: _description_
-    :rtype: _type_
+    This class defines the basic members and member functions a Runge-Kutta method should have.
+
+    :raises ButcherTableauException: The Butcher tableau is either not set or does not have th expected shape.
+    :raises RungeKuttaMethodException: The mandatory class members or member functions are not overwritten by the deriving class.
     """
 
     _name = None
@@ -48,7 +51,12 @@ class RungeKuttaMethod:
     _convergence_order = None
 
     def _check_tableau(self):
+        """Checks whether the Butcher tableau has the expected shape
 
+        :raises ButcherTableauException: The coefficent matrix :math:`A` does not have shape (self._n_stages, self._n_stages)
+        :raises ButcherTableauException: The coefficient vector :math:`b` containing the update coefficients does not have shape (self._n_stages,)
+        :raises ButcherTableauException: The coefficient vector :math:`c` containing the coefficients for intermediate time steps does not have shape (self._n_stages,)
+        """
         if self._tableau_a.shape == (1,) and self._n_stages == 1:
             return
 
@@ -68,7 +76,6 @@ class RungeKuttaMethod:
             )
 
     def __init__(self):
-
         if self._name == None:
             raise RungeKuttaMethodException(
                 f'Name property "_name" of class {self.__class__.__name__} is not set.'
@@ -91,6 +98,20 @@ class RungeKuttaMethod:
             sys.exit(1)
 
     def step(self, ode, y, t, dt, verbose=False):
+        """Compute one time step
+
+        :param ode: Object describing the ordinary differential equation
+        :type ode: :py:mod:`ordinarydifferentialequations`
+        :param y: _description_
+        :type y: _type_
+        :param t: _description_
+        :type t: _type_
+        :param dt: _description_
+        :type dt: _type_
+        :param verbose: _description_, defaults to False
+        :type verbose: bool, optional
+        :raises RungeKuttaMethodException: _description_
+        """
         raise RungeKuttaMethodException(
             f'Method "step" is not implemented for {self._name}'
         )
