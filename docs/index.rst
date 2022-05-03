@@ -6,14 +6,14 @@
 Welcome to rungekutta's documentation!
 ======================================
 
+``rungekutta`` is a Python module that provides a framework for defining ordinary differential equations (ODEs) and solving these differential equations using Runge-Kutta methods.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    source/rungekutta
    source/examples
-
-.. include:: ../README.rst
 
 Indices and tables
 ==================
