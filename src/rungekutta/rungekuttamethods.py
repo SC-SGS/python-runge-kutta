@@ -16,6 +16,7 @@ class ButcherTableauException(Exception):
     1. The Butcher tableau has the wrong shape, i.e. the coefficient vectors for coefficient matrix have the wrong shape.
     2. The Butcher tableau has wrong non-zero pattern which make the method implicit or diagonally implicit if this is not expected.
     """
+
     pass
 
 
@@ -122,8 +123,7 @@ class RungeKuttaMethod:
         )
 
     def report(self):
-        """Prints Butcher tableau to screen
-        """
+        """Prints Butcher tableau to screen"""
         print(
             f"{self._name}\nStages:{self._n_stages}\ntableau_a:\n{self._tableau_a}\ntableau_c:\n{self._tableau_c}\ntableau_b:\n{self._tableau_b}\n"
         )
