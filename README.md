@@ -59,7 +59,7 @@ t_end = 4
 ode = odes.SimpleODE()
 # Initialize explicit Euler method as solver
 ode_solver = rk.ExplicitEuler()
-# Solve the
+# Solve the ODE
 y, time_arr, _ = rk.solve_ode(ode_solver, ode, t0, dt, t_end, verbose=False)
 y = y.flatten()
 
